@@ -5,11 +5,12 @@ export const increment = (postId) => ({
 });
 
 // add comment
-export const addComment = (postId, author, comment) => ({
+export const addComment = (postId, author, comment, commentId) => ({
   type: 'ADD_COMMENT',
   postId,
   author,
-  comment
+  comment,
+  commentId
 });
 
 // remove comment

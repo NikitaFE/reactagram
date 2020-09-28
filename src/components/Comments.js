@@ -1,20 +1,21 @@
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
+import { generate as addId } from 'shortid';
+
 import { addComment, removeComment } from '../actions/actionCreators';
 
-const Comments = (props, refs) => {
-  const author = useRef('author');
-  const comment = useRef('comment');
-  const commentForm = useRef('commentForm');
+const Comments = (props) => {
+  const [author, setAuthor] = useState('');
+  const [comment, setComment] = useState('');
 
-  const renderComment = ({ id, user, text }) => (
-    <div className="comment" key={id}>
+  const renderComment = (comment) => (
+    <div className="comment" key={comment?.id}>
       <p>
-        <strong>{user}</strong>
-        {text}
+        <strong>{comment?.user}</strong>
+        {comment?.text}
         <button
           className="remove-comment"
-          onClick={() => props.removeComment(props.location.pathname, id)}
+          onClick={() => props.removeComment(props.location.pathname.slice(6), comment?.id)}
         >
           &times;
         </button>
@@ -24,18 +25,32 @@ const Comments = (props, refs) => {
 
   const handleSubmit = e => {
     e.preventDefault();
-    const { postId } = props.location.pathname;
 
-    props.addComment(postId, author, comment);
-    commentForm.reset();
+    if (author.length > 0 && comment.length > 0) {
+      const postId = props.location.pathname.slice(6);
+  
+      props.addComment(postId, author, comment, addId());
+      setAuthor('');
+      setComment('');
+    }
   };
 
   return (
     <div className="comments">
       {props.postComments.map(comment => renderComment(comment))}
-      <form ref={commentForm} className="comment-form" onSubmit={handleSubmit}>
-        <input type="text" ref={author} placeholder="author" />
-        <input type="text" ref={comment} placeholder="comment" />
+      <form className="comment-form" onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={author}
+          onChange={({target}) => setAuthor(target.value)}
+          placeholder="author"
+        />
+        <input
+          type="text"
+          value={comment}
+          onChange={({target}) => setComment(target.value)}
+          placeholder="comment"
+        />
         <input type="submit" hidden />
       </form>
     </div>
